@@ -1,13 +1,12 @@
 export default async function handler(req, res) {
+  // CORS HEADERS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-access-token');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end(); // pré-flight CORS
+    return res.status(200).end(); // Requisição pré-flight do navegador
   }
-
-  // ... (restante do código segue aqui)
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
@@ -52,7 +51,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erro da API BuckPay', detalhe: data });
     }
 
-    return res.json({ data });
+    return res.status(200).json({ data });
   } catch (err) {
     console.error('[BUCKPAY] Erro interno:', err);
     return res.status(500).json({ error: 'Erro interno no servidor' });
