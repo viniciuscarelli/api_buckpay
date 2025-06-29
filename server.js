@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 
 dotenv.config();
+
+console.log('[DEBUG] BUCKPAY_TOKEN:', process.env.BUCKPAY_TOKEN?.slice(0, 8) + '...');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
