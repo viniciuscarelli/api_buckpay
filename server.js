@@ -45,7 +45,6 @@ app.post('/gerar-pix', async (req, res) => {
         amount: centavos,
         external_id: `doacao_${Date.now()}`,
         payment_method: 'pix',
-        description: `Doação R$ ${valor}`
       })
     });
 
