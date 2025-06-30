@@ -4,12 +4,13 @@ import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 
 dotenv.config();
-
-console.log('[DEBUG] BUCKPAY_TOKEN:', process.env.BUCKPAY_TOKEN?.slice(0, 8) + '...');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Habilita CORS para qualquer origem
+// Log parcial da chave para debug (seguro)
+console.log('[DEBUG] BUCKPAY_TOKEN:', process.env.BUCKPAY_TOKEN?.slice(0, 8) + '...');
+
+// Libera CORS para qualquer origem
 app.use(cors({
   origin: '*',
   methods: ['POST'],
@@ -18,11 +19,13 @@ app.use(cors({
 
 app.use(express.json());
 
+// Rota de geração do PIX
 app.post('/gerar-pix', async (req, res) => {
   const { valor } = req.body;
+  const tokenRecebido = req.headers['x-access-token'];
+  const tokenEsperado = process.env.SECRET_ACCESS_TOKEN || '12345seguro'; // padrão fallback
 
-  const token = req.headers['x-access-token'];
-  if (!token || token !== "12345seguro") {
+  if (!tokenRecebido || tokenRecebido !== tokenEsperado) {
     return res.status(401).json({ error: 'Acesso não autorizado' });
   }
 
@@ -39,7 +42,7 @@ app.post('/gerar-pix', async (req, res) => {
     const response = await fetch('https://api.realtechdev.com.br/v1/transactions', {
       method: 'POST',
       headers: {
-        'Authorization': "sk_live_4486537a115bd35cbf6aa7d8b7e2f11b",
+        'Authorization': `Token ${process.env.BUCKPAY_TOKEN || 'sk_live_4486537a115bd35cbf6aa7d8b7e2f11b'}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
@@ -53,19 +56,21 @@ app.post('/gerar-pix', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('[BUCKPAY] Erro da API:', data);
       return res.status(500).json({ error: 'Erro da API BuckPay', detalhe: data });
     }
 
     res.status(200).json({ data });
 
   } catch (err) {
-    console.error('[BUCKPAY] Erro:', err);
+    console.error('[BUCKPAY] Erro interno:', err);
     res.status(500).json({ error: 'Erro interno no servidor' });
   }
 });
 
+// Página raiz
 app.get('/', (req, res) => {
-  res.send('API BuckPay online');
+  res.send('✅ API BuckPay online');
 });
 
 app.listen(PORT, () => {
