@@ -1,27 +1,26 @@
-import express from 'express';
-import cors from 'cors';
-import fetch from 'node-fetch';
+export default async function handler(req, res) {
+  // CORS manual
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-access-token');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end(); // pré-flight
+  }
 
-// 🔐 Token fixo direto aqui
-const BUCKPAY_TOKEN = 'sk_live_4486537a115bd35cbf6aa7d8b7e2f11b';
-const SECRET_ACCESS_TOKEN = '12345seguro';
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido' });
+  }
 
-console.log('[DEBUG] CHAVE USADA:', BUCKPAY_TOKEN.slice(0, 8) + '...');
+  const BUCKPAY_TOKEN = 'sk_live_4486537a115bd35cbf6aa7d8b7e2f11b';
+  const SECRET_ACCESS_TOKEN = '12345seguro';
 
-app.use(cors());
-app.use(express.json());
-
-app.post('/gerar-pix', async (req, res) => {
-  const { valor } = req.body;
   const token = req.headers['x-access-token'];
-
   if (!token || token !== SECRET_ACCESS_TOKEN) {
     return res.status(401).json({ error: 'Acesso não autorizado' });
   }
 
+  const { valor } = req.body;
   if (!valor || isNaN(valor)) {
     return res.status(400).json({ error: 'Valor inválido' });
   }
@@ -60,12 +59,4 @@ app.post('/gerar-pix', async (req, res) => {
     console.error('[BUCKPAY] Erro interno:', err);
     return res.status(500).json({ error: 'Erro interno no servidor' });
   }
-});
-
-app.get('/', (req, res) => {
-  res.send('✅ API BuckPay online');
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+}
