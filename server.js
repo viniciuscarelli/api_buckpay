@@ -39,7 +39,7 @@ app.post('/gerar-pix', async (req, res) => {
     const response = await fetch('https://api.realtechdev.com.br/v1/transactions', {
       method: 'POST',
       headers: {
-        'Authorization': `${process.env.BUCKPAY_TOKEN}`,
+        'Authorization': "sk_live_4486537a115bd35cbf6aa7d8b7e2f11b",
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
