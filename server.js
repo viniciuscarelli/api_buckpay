@@ -22,7 +22,7 @@ app.post('/gerar-pix', async (req, res) => {
   const { valor } = req.body;
 
   const token = req.headers['x-access-token'];
-  if (!token || token !== process.env.SECRET_ACCESS_TOKEN) {
+  if (!token || token !== "12345seguro") {
     return res.status(401).json({ error: 'Acesso não autorizado' });
   }
 
@@ -39,7 +39,7 @@ app.post('/gerar-pix', async (req, res) => {
     const response = await fetch('https://api.realtechdev.com.br/v1/transactions', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${process.env.BUCKPAY_TOKEN}`,
+        'Authorization': `${process.env.BUCKPAY_TOKEN}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
