@@ -1,31 +1,24 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Log parcial da chave para debug (seguro)
-console.log('[DEBUG] BUCKPAY_TOKEN:', process.env.BUCKPAY_TOKEN?.slice(0, 8) + '...');
+// 🔐 Token fixo direto aqui
+const BUCKPAY_TOKEN = 'sk_live_4486537a115bd35cbf6aa7d8b7e2f11b';
+const SECRET_ACCESS_TOKEN = '12345seguro';
 
-// Libera CORS para qualquer origem
-app.use(cors({
-  origin: '*',
-  methods: ['POST'],
-  allowedHeaders: ['Content-Type', 'x-access-token']
-}));
+console.log('[DEBUG] CHAVE USADA:', BUCKPAY_TOKEN.slice(0, 8) + '...');
 
+app.use(cors());
 app.use(express.json());
 
-// Rota de geração do PIX
 app.post('/gerar-pix', async (req, res) => {
   const { valor } = req.body;
-  const tokenRecebido = req.headers['x-access-token'];
-  const tokenEsperado = '12345seguro'; // padrão fallback
+  const token = req.headers['x-access-token'];
 
-  if (!tokenRecebido || tokenRecebido !== tokenEsperado) {
+  if (!token || token !== SECRET_ACCESS_TOKEN) {
     return res.status(401).json({ error: 'Acesso não autorizado' });
   }
 
@@ -42,7 +35,7 @@ app.post('/gerar-pix', async (req, res) => {
     const response = await fetch('https://api.realtechdev.com.br/v1/transactions', {
       method: 'POST',
       headers: {
-        'Authorization': 'sk_live_4486537a115bd35cbf6aa7d8b7e2f11b',
+        'Authorization': `Token ${BUCKPAY_TOKEN}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
@@ -50,6 +43,7 @@ app.post('/gerar-pix', async (req, res) => {
         amount: centavos,
         external_id: `doacao_${Date.now()}`,
         payment_method: 'pix',
+        description: `Doação R$ ${valor}`
       })
     });
 
@@ -60,15 +54,14 @@ app.post('/gerar-pix', async (req, res) => {
       return res.status(500).json({ error: 'Erro da API BuckPay', detalhe: data });
     }
 
-    res.status(200).json({ data });
+    return res.status(200).json({ data });
 
   } catch (err) {
     console.error('[BUCKPAY] Erro interno:', err);
-    res.status(500).json({ error: 'Erro interno no servidor' });
+    return res.status(500).json({ error: 'Erro interno no servidor' });
   }
 });
 
-// Página raiz
 app.get('/', (req, res) => {
   res.send('✅ API BuckPay online');
 });
