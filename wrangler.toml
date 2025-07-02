@@ -1,0 +1,9 @@
+name = "buckpay-proxy"
+type = "javascript"
+
+account_id = "242a354aea403202878c56f0fc4dfca9"
+workers_dev = true
+compatibility_date = "2024-01-01"
+
+[build]
+upload.format = "modules"
