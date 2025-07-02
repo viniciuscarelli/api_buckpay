@@ -1,7 +1,5 @@
 export default {
   async fetch(request, env, ctx) {
-    export default {
-  async fetch(request, env, ctx) {
     // ✅ Configuração
     const BUCKPAY_TOKEN = 'sk_live_4486537a115bd35cbf6aa7d8b7e2f11b';
     const SECRET_ACCESS_TOKEN = '12345seguro';
@@ -83,8 +81,5 @@ export default {
         headers: corsHeaders,
       });
     }
-  }
-};
-
   }
 };
