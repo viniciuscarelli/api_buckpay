@@ -1,11 +1,12 @@
 export default async function handler(req, res) {
-  // CORS manual
+  // ✅ CORS headers para todas as respostas
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-access-token');
 
+  // ✅ Responder pré-flight request (CORS preflight)
   if (req.method === 'OPTIONS') {
-    return res.status(200).end(); // pré-flight
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Valor inválido' });
   }
 
-  const centavos = Math.round(parseFloat(valor) * 100);
+  const centavos = Math.round(parseFloat(valor));
   if (centavos < 3000) {
     return res.status(400).json({ error: 'Valor mínimo é R$ 30,00' });
   }
@@ -42,7 +43,7 @@ export default async function handler(req, res) {
         amount: centavos,
         external_id: `doacao_${Date.now()}`,
         payment_method: 'pix',
-        description: `Doação R$ ${valor}`
+        description: `Doação R$ ${(centavos / 100).toFixed(2)}`
       })
     });
 
