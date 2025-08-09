@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/gerar-pix.js": {
+    "server.js": {
       "memory": 512,
       "maxDuration": 15,
       "runtime": "nodejs18.x",
