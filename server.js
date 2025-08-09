@@ -1,22 +1,13 @@
-import express from 'express';
-import cors from 'cors';
 import fetch from 'node-fetch';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 const BUCKPAY_TOKEN = process.env.BUCKPAY_TOKEN;
 const SECRET_ACCESS_TOKEN = process.env.SECRET_ACCESS_TOKEN;
-const PROXY_URL = process.env.PROXY_URL;
 
-app.use(cors());
-app.use(express.json());
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido' });
+  }
 
-app.post('/gerar-pix', async (req, res) => {
   const token = req.headers['x-access-token'];
   if (token !== SECRET_ACCESS_TOKEN) {
     return res.status(401).json({ error: 'Acesso não autorizado' });
@@ -30,11 +21,8 @@ app.post('/gerar-pix', async (req, res) => {
   }
 
   try {
-    const agent = new HttpsProxyAgent(PROXY_URL);
-
     const response = await fetch('https://api.realtechdev.com.br/v1/transactions', {
       method: 'POST',
-      agent,
       headers: {
         'Authorization': `Token ${BUCKPAY_TOKEN}`,
         'Content-Type': 'application/json',
@@ -60,8 +48,4 @@ app.post('/gerar-pix', async (req, res) => {
     console.error('[ERRO]', err);
     return res.status(500).json({ error: 'Erro interno no servidor' });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+}
